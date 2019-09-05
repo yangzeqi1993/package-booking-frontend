@@ -46,7 +46,6 @@
 </template>
 
 <script>
-  import axios from "vue-axios"
 export default {
   name: "parcelStorage",
   data() {
@@ -61,19 +60,7 @@ export default {
       this.form.validateFields((err, values) => {
         if (!err) {
           console.log("Received values of form: ", values);
-
-          axios.post('/receiver/add/userName =' + values.id, {
-            id: values.id, // 系统自动生成
-            receiver: values.receiver,
-            phone: values.phone,
-            weight: values.weight,
-          })
-            .then(function (response) {
-
-            })
-            .catch(function (error) {
-
-            });
+          this.$store.dispatch('addPackage', values)
         }
       });
     }
