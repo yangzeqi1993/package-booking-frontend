@@ -60,7 +60,8 @@ export default {
       this.form.validateFields((err, values) => {
         if (!err) {
           console.log("Received values of form: ", values);
-          this.$store.dispatch('addPackage', values)
+          this.$store.dispatch('addPackageToDatabase', values);
+          this.$router.push('/');
         }
       });
     }

@@ -11,53 +11,66 @@ const initState = {
 export default new Vuex.Store({
   state: initState,
   getters: {
-    getPackageById(state){
-      window.console.log(state.packageList)
-      return function (id) {
-        for(let packager in state.packageList){
-          window.console.log(state.packageList)
-          window.console.log(id.toString())
-          if(packager.id === "4"){
-            return packager;
-          }
-        }
-        return null;
+    getAllPackages(state){
+      return function () {
+        return state.packageList;
       }
+    },
+    getPackageByIndex(state){
+      return function (index) {
+        return state.packageList[index - 1];
+      };
     }
   },
   mutations: {
-    pushPackageList(state,data){
-      state.packageList.push(data);
+    setAllPackagesToList(state,data){
+      state.packageList = [];
+      state.packageList = data;
     }
   },
   actions: {
-    addPackage(context,data){
-      axios.post('http://localhost:8080/packagers', {
-        id: data.id, // 系统自动生成
-        receiver: data.receiver,
-        phone: data.phone,
-        weight: data.weight,
-        status: "未预约",
-        appointment: ""
-      })
-        .then(function (response) {
-            context.commit('pushPackageList',response.data);
+    addPackageToDatabase(context,data){
+        axios.post('http://localhost:8080/packagers', {
+          id: data.id, // 系统自动生成
+          receiver: data.receiver,
+          phone: data.phone,
+          weight: data.weight,
+          status: "未预约",
+          appointment: ""
         })
-        .catch(function (error) {
-          window.console.log(error);
-        });
+          .then(function (response) {
+            context.dispatch('fetchAllPackagesFromDatabase');
+            window.console.log(response.data);
+          })
+          .catch(function (error) {
+              window.console.log(error);
+          })
     },
 
-    updatePackage(context,data){
+    updatePackageStatusToDatabase(context,data){
         axios.put('http://localhost:8080/packagers/'+data.id, {
           appointment: data.date
         })
           .then(function (response) {
-            context.commit('pushPackageList',response.data);
+            context.dispatch('fetchAllPackagesFromDatabase');
+            window.console.log(response.data);
           })
           .catch(function (error) {
             window.console.log(error);
           });
+    },
+
+    fetchAllPackagesFromDatabase(context){
+      axios.get('http://localhost:8080/packagers')
+        .then(function (response) {
+          context.commit('setAllPackagesToList',response.data);
+        })
+        .catch(function (error) {
+          window.console.log(error);
+        })
+        .finally(function () {
+          // router.push("/");
+        });
     }
 
   }
